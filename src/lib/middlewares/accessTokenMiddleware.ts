@@ -6,7 +6,7 @@ import { prisma } from "../../index.js";
 export async function accessTokenMiddleware(
   req: ExpressRequest,
   _res: ExpressResponse,
-  next: NextFunction,
+  next: NextFunction
 ) {
   console.log(`[${req.path.replace("/", "")}] accessTokenMiddleware`);
 
@@ -21,6 +21,12 @@ export async function accessTokenMiddleware(
       });
       if (user) {
         req.userId = user.id;
+        console.log(
+          `[${req.path.replace("/", "")}] accessTokenMiddleware`,
+          user.firstName,
+          user.lastName
+        );
+
         await prisma.accessToken.update({
           where: { token },
           data: { expiryDate: tomorrow() },

@@ -4,7 +4,7 @@ import { operations } from "..";
 export async function secureFetchEndpointsMiddleware(
   req: ExpressRequest,
   res: ExpressResponse,
-  next: NextFunction,
+  next: NextFunction
 ) {
   console.log(`[${req.path.replace("/", "")}] secureFetchEndpointsMiddleware`);
 
@@ -18,6 +18,9 @@ export async function secureFetchEndpointsMiddleware(
     res,
     payload: { ...req.body, sender: req.userId! },
   });
+  console.log(`[${req.path.replace("/", "")}] req.userId: ${req.userId}`);
+  console.log(`[${req.path.replace("/", "")}] queryToken: ${req.queryToken}`);
+  console.log("");
 
   return res.send(result);
 }

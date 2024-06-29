@@ -6,10 +6,11 @@ import { ExpressRequest } from "../helpers";
 export async function encryptionMiddleware(
   req: ExpressRequest,
   res: ExpressResponse,
-  next: NextFunction,
+  next: NextFunction
 ) {
   console.log(
-    `\n${req.get("origin") ?? ""} [${req.path.replace("/", "")} ${req.method}] encryptionMiddleware`,
+    `\n[${req.path.replace("/", "")}] ${req.method} encryptionMiddleware`,
+    req.get("origin") ?? ""
   );
   if (req.get("origin")) {
     res.header("Access-Control-Allow-Origin", req.get("origin"));
