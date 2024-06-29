@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "dist",
-    "target": "ESNext",
+    "target": "ES2022",
     "lib": ["DOM", "ES6"],
     "types": ["node"],
     "module": "ESNext",

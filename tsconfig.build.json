@@ -4,5 +4,6 @@
     "sourceMap": false,
     "declaration": true,
     "allowJs": true
-  }
+  },
+  "exclude": ["./dist", "./src/auth-client", "./src/migrations"]
 }

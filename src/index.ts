@@ -1,9 +1,29 @@
-import express from "express";
-import { PrismaClient } from "@prisma/client";
-import { useSecureServerMiddlewares } from "./lib/index.js";
-export const prisma = new PrismaClient();
-const server = express();
-useSecureServerMiddlewares(server);
-server.listen(5781, () => {
-  console.log(`Server is running at http://localhost:${5781}`);
-});
+import { NextFunction, Response } from "express";
+import { encryptionMiddleware } from "./middlewares/encryptionMiddleware";
+import { accessTokenMiddleware } from "./middlewares/accessTokenMiddleware";
+import { queryTokenMiddleware } from "./middlewares/queryTokenMiddleware";
+import { secureFetchEndpointsMiddleware } from "./middlewares/secureFetchEndpointsMiddleware";
+import { ExpressRequest } from "./helpers";
+const middlewares = [
+  encryptionMiddleware,
+  accessTokenMiddleware,
+  queryTokenMiddleware,
+  secureFetchEndpointsMiddleware,
+];
+export default (
+  req: ExpressRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  let index = 0;
+
+  const nextMiddleware = () => {
+    if (index >= middlewares.length) {
+      return next();
+    }
+    middlewares[index]?.(req, res, nextMiddleware);
+    index++;
+  };
+
+  nextMiddleware();
+};

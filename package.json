@@ -44,13 +44,13 @@
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint  --fix",
-    "build": "rollup -c",
+    "build": "rm -rf ./dist && tsc -p tsconfig.build.json && cp ./src/schema.prisma ./dist && pnpm minify",
     "dev": "tsx watch -r dotenv-expand/config src/index.ts",
-    "generate": "npx prisma generate",
-    "migrate": "npx prisma migrate"
+    "generate": "npx prisma generate --schema=./src/schema.prisma",
+    "postinstall": "npx prisma generate --schema=./dist/schema.prisma",
+    "minify": "find dist -name '*.js' -exec sh -c 'echo Minifying {} && terser {} -o {}' \\;"
   },
   "devDependencies": {
-    "@rollup/plugin-terser": "^0.4.4",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
@@ -58,9 +58,6 @@
     "@types/ws": "^8.5.10",
     "prettier": "^3.3.2",
     "prisma": "5.16.1",
-    "rollup": "^4.18.0",
-    "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-typescript2": "^0.36.0",
     "tsx": "^4.15.7",
     "typescript": "5.5.2"
   },
@@ -73,12 +70,10 @@
     "@ugursahinkaya/utils": "0.1.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "dotenv-expand": "^11.0.6",
-    "express": "^4.19.2",
-    "jszip": "^3.10.1",
     "raw-body": "^2.5.2",
+    "terser": "^5.31.1",
     "ws": "^8.17.0"
   }
 }
