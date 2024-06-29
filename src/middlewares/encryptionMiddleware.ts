@@ -12,11 +12,18 @@ export default async function encryptionMiddleware(
     `\n[${req.path.replace("/", "")}] ${req.method} encryptionMiddleware`,
     req.get("origin") ?? ""
   );
-  if (req.get("origin")) {
+  if (
+    process.env.ALLOW_ORIGIN &&
+    (process.env.ALLOW_ORIGIN === "*" ||
+      process.env.ALLOW_ORIGIN === req.get("origin"))
+  ) {
     res.header("Access-Control-Allow-Origin", req.get("origin"));
     res.header("Access-Control-Allow-Methods", "POST");
     res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
     res.header("Access-Control-Allow-Credentials", "true");
+    if (req.method === "OPTIONS") {
+      return res.status(204).send();
+    }
   }
   if (req.method === "OPTIONS") {
     return res.status(204).send();
