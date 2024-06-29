@@ -22,7 +22,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "node": "./dist/index.cjs",
+      "node": "./dist/index.js",
       "default": "./dist/index.js"
     }
   },
@@ -64,16 +64,11 @@
   "dependencies": {
     "@prisma/client": "5.16.1",
     "@ugursahinkaya/crypto-lib": "0.1.0",
-    "@ugursahinkaya/generic-router": "0.1.0",
-    "@ugursahinkaya/secure-fetch": "0.1.0",
-    "@ugursahinkaya/shared-types": "0.1.0",
     "@ugursahinkaya/utils": "0.1.0",
     "bcryptjs": "^2.4.3",
-    "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "dotenv-expand": "^11.0.6",
     "raw-body": "^2.5.2",
-    "terser": "^5.31.1",
-    "ws": "^8.17.0"
+    "terser": "^5.31.1"
   }
 }
