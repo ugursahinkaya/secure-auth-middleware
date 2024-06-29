@@ -4,7 +4,7 @@ import { RestContext, checkParams } from "../helpers";
 
 export async function getUserData(
   payload: { userQueryToken: string },
-  context: RestContext
+  context: RestContext,
 ) {
   console.log(`[getUserData]`, payload);
   const response = checkParams(payload, context);
@@ -16,7 +16,7 @@ export async function getUserData(
       {
         error: "accessToken must provide",
       },
-      context.payload.sender
+      context.payload.sender,
     );
   }
   const accessToken = await prisma.accessToken.findFirst({
@@ -30,7 +30,7 @@ export async function getUserData(
       {
         error: "invalid accessToken",
       },
-      context.req.queryToken!
+      context.req.queryToken!,
     );
   }
   const queryToken = await prisma.queryToken.findFirst({
@@ -46,7 +46,7 @@ export async function getUserData(
       {
         error: "user not Found",
       },
-      context.req.queryToken!
+      context.req.queryToken!,
     );
   }
   const user = await prisma.user.findFirst({
@@ -58,9 +58,9 @@ export async function getUserData(
       {
         error: "user not Found",
       },
-      context.req.queryToken!
+      context.req.queryToken!,
     );
   }
-  const { firstName, lastName, phone } = user;
-  return encrypt({ firstName, lastName, phone }, context.req.queryToken!);
+  const { firstName, lastName, username } = user;
+  return encrypt({ firstName, lastName, username }, context.req.queryToken!);
 }

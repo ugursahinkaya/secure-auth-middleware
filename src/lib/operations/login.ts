@@ -9,8 +9,8 @@ import {
 } from "../helpers.js";
 
 export async function login(
-  payload: { phone: string; password: string },
-  context: RestContext
+  payload: { username: string; password: string },
+  context: RestContext,
 ) {
   console.log(`[login]`, payload);
 
@@ -20,8 +20,7 @@ export async function login(
   }
   const queryToken = context.req.queryToken!;
   const user = await prisma.user.findFirst({
-    //@ts-expect-error 123
-    where: { phone: payload.username },
+    where: { username: payload.username },
   });
   console.log("user", user?.firstName, user?.lastName);
   if (!user) {
@@ -29,7 +28,7 @@ export async function login(
       {
         error: "Kullanıcı bulunamadı",
       },
-      queryToken
+      queryToken,
     );
   }
 
@@ -39,20 +38,20 @@ export async function login(
       {
         error: "Hatalı telefon numarası ya da şifre",
       },
-      queryToken
+      queryToken,
     );
   }
 
   const device = await getOrCreateDevice(context.req, queryToken);
   const { accessToken, refreshToken } = await getOrCreateAccessTokenForLogin(
     device.id,
-    user.id
+    user.id,
   );
   context.res.cookie("accessToken", accessToken.token, {
     maxAge: 1440000,
     httpOnly: true,
   });
-  const { phone, firstName, lastName } = user;
+  const { username, firstName, lastName } = user;
 
   await prisma.user.update({
     where: { id: user.id },
@@ -63,13 +62,13 @@ export async function login(
 
   return encrypt(
     {
-      phone,
+      username,
       firstName,
       lastName,
       refreshToken: refreshToken?.token,
       queryToken,
-      login: true,
+      process: "loggedIn",
     },
-    queryToken
+    queryToken,
   );
 }

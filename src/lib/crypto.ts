@@ -4,22 +4,16 @@ export async function encrypt(data: Record<string, any>, receiver: string) {
   try {
     const [ciphertext, iv] = await cryptoLib.encrypt(
       JSON.stringify(data),
-      receiver
+      receiver,
     );
     const concatenatedArray = new Uint8Array(
-      iv.byteLength + ciphertext.byteLength
+      iv.byteLength + ciphertext.byteLength,
     );
     concatenatedArray.set(new Uint8Array(iv), 0);
     concatenatedArray.set(new Uint8Array(ciphertext), iv.byteLength);
 
     return Buffer.from(concatenatedArray);
-  } catch (err) {
-    console.log("---");
-    console.log("encrypt err", err);
-    console.log(receiver);
-    console.log(cryptoLib.keyMap);
-    console.log("---");
-
+  } catch {
     return data;
   }
 }

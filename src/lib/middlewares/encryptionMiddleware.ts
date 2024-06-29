@@ -6,10 +6,10 @@ import { ExpressRequest } from "../helpers";
 export async function encryptionMiddleware(
   req: ExpressRequest,
   res: ExpressResponse,
-  next: NextFunction
+  next: NextFunction,
 ) {
   console.log(
-    `\n${req.get("origin") ?? ""} [${req.path.replace("/", "")} ${req.method}] encryptionMiddleware`
+    `\n${req.get("origin") ?? ""} [${req.path.replace("/", "")} ${req.method}] encryptionMiddleware`,
   );
   if (req.get("origin")) {
     res.header("Access-Control-Allow-Origin", req.get("origin"));
@@ -23,27 +23,26 @@ export async function encryptionMiddleware(
   if (req.method !== "POST") {
     return res.status(403).send();
   }
+  const raw = await rawBody(req);
 
-  await rawBody(req).then(async (raw) => {
-    if (req.path === "/getQueryToken") {
-      try {
-        req.body = JSON.parse(raw.toString("utf8"));
-      } catch (e) {
-        return res.status(403).send();
-      }
-    } else {
-      const queryToken = req.cookies["queryToken"];
-      cryptoLib
-        .decryptBuffer(raw, true, queryToken)
-        .then((decrypted) => {
-          res.setHeader("Content-Type", "application/octet-stream");
-          req.body = decrypted;
-        })
-        .catch((error) => {
-          console.log(error);
-          return res.status(403).send();
-        });
+  if (req.path === "/getQueryToken") {
+    try {
+      req.body = JSON.parse(raw.toString("utf8"));
+    } catch (e) {
+      return res.status(403).send();
     }
-    return next();
-  });
+  } else {
+    const queryToken = req.cookies["queryToken"];
+    cryptoLib
+      .decryptBuffer(raw, true, queryToken)
+      .then((decrypted) => {
+        res.setHeader("Content-Type", "application/octet-stream");
+        req.body = decrypted;
+      })
+      .catch((error) => {
+        console.log(error);
+        return res.status(403).send();
+      });
+  }
+  return next();
 }

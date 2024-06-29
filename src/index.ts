@@ -1,6 +1,6 @@
 import express from "express";
-import { PrismaClient } from "./prisma-client";
-import { useSecureServerMiddlewares } from "./lib";
+import { PrismaClient } from "@prisma/client";
+import { useSecureServerMiddlewares } from "./lib/index.js";
 export const prisma = new PrismaClient();
 const server = express();
 useSecureServerMiddlewares(server);

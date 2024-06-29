@@ -6,7 +6,7 @@ import { prisma } from "../../index.js";
 export async function accessTokenMiddleware(
   req: ExpressRequest,
   _res: ExpressResponse,
-  next: NextFunction
+  next: NextFunction,
 ) {
   console.log(`[${req.path.replace("/", "")}] accessTokenMiddleware`);
 

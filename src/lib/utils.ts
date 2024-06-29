@@ -7,7 +7,7 @@ const saltRounds = 10;
 
 export function senderCRC(req: ExpressRequest) {
   return calculateCRC32(
-    req.headers["user-agent"] ?? "" + req.ip + req.headers.referer ?? ""
+    req.headers["user-agent"] ?? "" + req.ip + req.headers.referer ?? "",
   );
 }
 
@@ -18,7 +18,7 @@ export async function hashPassword(password: string): Promise<string> {
 }
 export async function verifyPassword(
   plainPassword: string,
-  hashedPassword: string
+  hashedPassword: string,
 ): Promise<boolean> {
   return await bcrypt.compare(plainPassword, hashedPassword);
 }

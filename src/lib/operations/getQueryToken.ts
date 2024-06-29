@@ -7,7 +7,7 @@ import {
 } from "../helpers";
 export async function getQueryToken(
   payload: { clientPublicKey: string },
-  context: RestContext
+  context: RestContext,
 ) {
   console.log(`[getQueryToken]`, payload);
 
@@ -17,10 +17,10 @@ export async function getQueryToken(
   await cryptoLib.generateKey(context.req.queryToken!);
   await cryptoLib.importPublicKey(
     cryptoLib.base64ToArrayBuffer(payload.clientPublicKey),
-    context.req.queryToken!
+    context.req.queryToken!,
   );
   const publicKey = cryptoLib.arrayBufferToBase64(
-    await cryptoLib.exportKey(context.req.queryToken!)
+    await cryptoLib.exportKey(context.req.queryToken!),
   );
   cryptoLib.keyMap.delete(`${context.req.queryToken!}PBL`);
   cryptoLib.keyMap.delete(`${context.req.queryToken!}PRV`);
@@ -31,23 +31,23 @@ export async function getQueryToken(
       select: {
         firstName: true,
         lastName: true,
-        phone: true,
+        username: true,
       },
     });
     if (user) {
       await prisma.queryToken.update({
         where: { token: context.req.queryToken },
         data: {
-          user: { connect: { phone: user.phone } },
+          user: { connect: { username: user.username } },
         },
       });
       const device = await getOrCreateDevice(
         context.req,
-        context.req.queryToken!
+        context.req.queryToken!,
       );
       const { accessToken } = await getOrCreateAccessTokenForLogin(
         device.id,
-        context.req.userId
+        context.req.userId,
       );
       context.res.cookie("accessToken", accessToken.token, {
         maxAge: 1440000,
@@ -55,16 +55,14 @@ export async function getQueryToken(
       });
       return {
         serverPublicKey: publicKey,
-        status: "ok",
         queryToken: context.req.queryToken,
-        process: "connectSocket",
+        process: "loggedIn",
       };
     }
   }
 
   const result = {
     serverPublicKey: publicKey,
-    status: "ok",
     process: "loginOrRegister",
   };
   return result;

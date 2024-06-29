@@ -9,7 +9,7 @@ import {
 export async function queryTokenMiddleware(
   req: ExpressRequest,
   res: ExpressResponse,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const sender = senderCRC(req);
 

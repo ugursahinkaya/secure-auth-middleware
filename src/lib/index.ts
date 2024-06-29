@@ -1,4 +1,4 @@
-import { checkPhoneNumber } from "./operations/checkPhoneNumber.js";
+import { checkUserName } from "./operations/checkUserName.js";
 import { getQueryToken } from "./operations/getQueryToken.js";
 import { login } from "./operations/login.js";
 import { logout } from "./operations/logout.js";
@@ -14,7 +14,7 @@ import { secureFetchEndpointsMiddleware } from "./middlewares/secureFetchEndpoin
 import { Express } from "express";
 import cookieParser from "cookie-parser";
 export const operations = {
-  checkPhoneNumber,
+  checkPhoneNumber: checkUserName,
   getQueryToken,
   login,
   logout,

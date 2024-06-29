@@ -1,11 +1,10 @@
 import { Response as ExpressResponse, NextFunction } from "express";
 import { ExpressRequest } from "../helpers";
 import { operations } from "..";
-import { cryptoLib, encrypt } from "../crypto";
 export async function secureFetchEndpointsMiddleware(
   req: ExpressRequest,
   res: ExpressResponse,
-  next: NextFunction
+  next: NextFunction,
 ) {
   console.log(`[${req.path.replace("/", "")}] secureFetchEndpointsMiddleware`);
 

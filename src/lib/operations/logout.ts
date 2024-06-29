@@ -1,29 +1,27 @@
 import { prisma } from "../../index.js";
-import { encrypt } from "../crypto.js";
+import { cryptoLib, encrypt } from "../crypto.js";
 import { RestContext, checkParams } from "../helpers.js";
 
-export async function logout(
-  payload: { phone: string; password: string },
-  context: RestContext
-) {
+export async function logout(payload: {}, context: RestContext) {
   console.log(`[logout]`, payload);
+  context.res.clearCookie("accessToken");
   const response = checkParams(payload, context);
   if (response !== true) {
-    context.res.clearCookie("accessToken");
     return response;
   }
+  context.res.clearCookie("queryToken");
+  cryptoLib.keyMap.delete(`${context.req.cookies["queryToken"]!}SCR`);
   const queryToken = context.req.queryToken!;
   const token = await prisma.queryToken.findFirst({
     where: { token: queryToken },
     include: { device: true },
   });
   if (!token || !token.device) {
-    context.res.clearCookie("accessToken");
     return encrypt(
       {
         error: "Unexpected error",
       },
-      context.payload.sender
+      context.payload.sender,
     );
   }
   await prisma.device.update({
@@ -33,6 +31,5 @@ export async function logout(
   await prisma.queryToken.delete({
     where: { id: token.id },
   });
-  context.res.clearCookie("accessToken");
   return encrypt({ process: "loggedOut" }, context.payload.sender);
 }
