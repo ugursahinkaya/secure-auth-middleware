@@ -15,7 +15,7 @@ const middlewares = [
 export default (
   req: ExpressRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   let index = -1;
   const nextMiddleware = () => {

@@ -5,7 +5,7 @@ import { tomorrow } from "../utils.js";
 
 export async function refreshToken(
   payload: { refreshToken: string },
-  context: RestContext
+  context: RestContext,
 ) {
   console.log(`[refreshToken]`, payload);
   const queryToken = context.req.queryToken!;
@@ -32,13 +32,13 @@ export async function refreshToken(
         accessToken: accessToken.token,
         expiryDate: accessToken.expiryDate,
       },
-      queryToken
+      queryToken,
     );
   }
   return encrypt(
     {
       error: "invalid refreshToken",
     },
-    queryToken
+    queryToken,
   );
 }

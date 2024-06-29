@@ -22,7 +22,7 @@ const parseCookies = (cookieHeader: string | undefined): Cookies => {
 const cookieParser = (
   req: Request,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   req.cookies = parseCookies(req.headers.cookie);
   next();

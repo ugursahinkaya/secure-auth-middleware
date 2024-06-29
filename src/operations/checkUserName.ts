@@ -4,7 +4,7 @@ import { RestContext, checkParams } from "../helpers.js";
 
 export async function checkUserName(
   payload: { userName: string; register?: boolean },
-  context: RestContext
+  context: RestContext,
 ) {
   console.log(`[checkUserName]`, payload);
 
@@ -20,11 +20,11 @@ export async function checkUserName(
       {
         error: "Kullanıcı bulunamadı",
       },
-      context.payload.sender
+      context.payload.sender,
     );
   }
   return encrypt(
     { status: "ok", data: "password_page" },
-    context.payload.sender
+    context.payload.sender,
   );
 }

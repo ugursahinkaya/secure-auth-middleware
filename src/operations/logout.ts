@@ -21,7 +21,7 @@ export async function logout(payload: {}, context: RestContext) {
       {
         error: "Unexpected error",
       },
-      context.payload.sender
+      context.payload.sender,
     );
   }
   await prisma.device.update({

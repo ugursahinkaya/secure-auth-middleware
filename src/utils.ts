@@ -17,7 +17,7 @@ const crcKeys = [
 ];
 export function senderCRC(req: ExpressRequest) {
   return calculateCRC32(
-    req.ip + crcKeys.map((key) => req.headers[key]).join("")
+    req.ip + crcKeys.map((key) => req.headers[key]).join(""),
   );
 }
 
@@ -28,7 +28,7 @@ export async function hashPassword(password: string): Promise<string> {
 }
 export async function verifyPassword(
   plainPassword: string,
-  hashedPassword: string
+  hashedPassword: string,
 ): Promise<boolean> {
   return await bcrypt.compare(plainPassword, hashedPassword);
 }

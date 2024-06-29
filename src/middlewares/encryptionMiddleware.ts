@@ -6,11 +6,11 @@ import { ExpressRequest } from "../helpers.js";
 export default async function encryptionMiddleware(
   req: ExpressRequest,
   res: ExpressResponse,
-  next: NextFunction
+  next: NextFunction,
 ) {
   console.log(
     `\n[${req.path.replace("/", "")}] ${req.method} encryptionMiddleware`,
-    req.get("origin") ?? ""
+    req.get("origin") ?? "",
   );
   if (
     process.env.ALLOW_ORIGIN &&

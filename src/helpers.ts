@@ -21,7 +21,7 @@ export function checkParams(
     req: ExpressRequest;
     res: ExpressResponse;
     payload: { sender: string };
-  }
+  },
 ) {
   if (!context.req) {
     return false;
@@ -31,7 +31,7 @@ export function checkParams(
       {
         error: "payload not found",
       },
-      context.payload.sender
+      context.payload.sender,
     );
   }
   if (!context.req) {
@@ -39,7 +39,7 @@ export function checkParams(
       {
         error: "context not found",
       },
-      context.payload.sender
+      context.payload.sender,
     );
   }
 
@@ -49,7 +49,7 @@ export function checkParams(
       {
         error: "queryToken not found",
       },
-      context.payload.sender
+      context.payload.sender,
     );
   }
   return true;
@@ -57,7 +57,7 @@ export function checkParams(
 
 export async function checkCookieForQueryToken(
   req: ExpressRequest,
-  senderCRC: string
+  senderCRC: string,
 ) {
   if (!req.cookies["queryToken"]) {
     return false;
@@ -97,7 +97,7 @@ export async function getOrCreateLoginScope() {
 
 export async function getOrCreateAccessTokenForLogin(
   deviceId: string,
-  userId: string
+  userId: string,
 ) {
   let accessToken = await prisma.accessToken.findFirst({
     where: {
@@ -146,7 +146,7 @@ export async function getOrCreateAccessTokenForLogin(
 
 export async function getOrCreateDevice(
   req: ExpressRequest,
-  queryToken: string
+  queryToken: string,
 ) {
   let device = await prisma.device.findFirst({
     where: { queryToken: { some: { token: queryToken } } },
@@ -167,7 +167,7 @@ export async function getOrCreateDevice(
 
 export async function moveDeviceToNewQueryToken(
   oldQueryToken: string,
-  newQueryToken: string
+  newQueryToken: string,
 ) {
   const queryToken = await prisma.queryToken.findFirst({
     where: { token: oldQueryToken },
@@ -193,7 +193,7 @@ function moveCryptoKeysToNewQueryToken(oldToken: string, newToken: string) {
 export async function renewQueryToken(
   req: ExpressRequest,
   res: ExpressResponse,
-  senderCRC: string
+  senderCRC: string,
 ) {
   const newToken = randomString(40);
   if (req.cookies["queryToken"]) {

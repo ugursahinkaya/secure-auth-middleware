@@ -9,7 +9,7 @@ import {
 
 export async function login(
   payload: { userName: string; password: string },
-  context: RestContext
+  context: RestContext,
 ) {
   console.log(`[login]`, payload);
 
@@ -27,7 +27,7 @@ export async function login(
       {
         error: "Kullanıcı bulunamadı",
       },
-      queryToken
+      queryToken,
     );
   }
 
@@ -37,14 +37,14 @@ export async function login(
       {
         error: "Hatalı telefon numarası ya da şifre",
       },
-      queryToken
+      queryToken,
     );
   }
 
   const device = await getOrCreateDevice(context.req, queryToken);
   const { accessToken, refreshToken } = await getOrCreateAccessTokenForLogin(
     device.id,
-    user.id
+    user.id,
   );
   context.res.cookie("accessToken", accessToken.token, {
     maxAge: 1440000,
@@ -68,6 +68,6 @@ export async function login(
       queryToken,
       process: "loggedIn",
     },
-    queryToken
+    queryToken,
   );
 }

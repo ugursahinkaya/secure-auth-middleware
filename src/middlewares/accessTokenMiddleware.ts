@@ -6,7 +6,7 @@ import { prisma } from "../lib.js";
 export default async function accessTokenMiddleware(
   req: ExpressRequest,
   _res: ExpressResponse,
-  next: NextFunction
+  next: NextFunction,
 ) {
   console.log(`[${req.path.replace("/", "")}] accessTokenMiddleware`);
 
@@ -24,7 +24,7 @@ export default async function accessTokenMiddleware(
         console.log(
           `[${req.path.replace("/", "")}] accessTokenMiddleware`,
           user.firstName,
-          user.lastName
+          user.lastName,
         );
 
         await prisma.accessToken.update({

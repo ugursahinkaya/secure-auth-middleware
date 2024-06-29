@@ -15,7 +15,7 @@ export async function register(
     password: string;
     password2: string;
   },
-  context: RestContext
+  context: RestContext,
 ) {
   console.log(`[register]`, payload);
   const response = checkParams(payload, context);
@@ -34,7 +34,7 @@ export async function register(
       {
         error: "Kullanıcı zaten kayıtlı",
       },
-      context.payload.sender
+      context.payload.sender,
     );
   }
   if (payload.password !== payload.password2) {
@@ -42,7 +42,7 @@ export async function register(
       {
         error: "Şifreler eşleşmiyor",
       },
-      context.payload.sender
+      context.payload.sender,
     );
   }
   const newUser = await prisma.user.create({
@@ -57,7 +57,7 @@ export async function register(
   const device = await getOrCreateDevice(context.req, queryToken);
   const { accessToken, refreshToken } = await getOrCreateAccessTokenForLogin(
     device.id,
-    newUser.id
+    newUser.id,
   );
 
   context.res.cookie("accessToken", accessToken.token, {
@@ -68,6 +68,6 @@ export async function register(
   const { userName, firstName, lastName } = newUser;
   return encrypt(
     { userName, firstName, lastName, refreshToken: refreshToken.token },
-    context.payload.sender
+    context.payload.sender,
   );
 }
