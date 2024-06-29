@@ -3,10 +3,22 @@ import bcrypt from "bcryptjs";
 
 import { ExpressRequest } from "./helpers.js";
 
-const saltRounds = 10;
-
+const saltRounds = 14;
+const crcKeys = [
+  "host",
+  "origin",
+  "user-agent",
+  "sec-ch-ua",
+  "sec-ch-ua-platform",
+  "sec-fetch-mode",
+  "sec-fetch-site",
+  "sec-fetch-dest",
+  "accept-encoding",
+];
 export function senderCRC(req: ExpressRequest) {
-  return calculateCRC32(JSON.stringify(req.headers));
+  return calculateCRC32(
+    req.ip + crcKeys.map((key) => req.headers[key]).join("")
+  );
 }
 
 export async function hashPassword(password: string): Promise<string> {
