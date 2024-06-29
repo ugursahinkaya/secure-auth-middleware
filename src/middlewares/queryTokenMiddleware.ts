@@ -6,7 +6,7 @@ import {
   renewQueryToken,
 } from "../helpers.js";
 
-export async function queryTokenMiddleware(
+export default async function queryTokenMiddleware(
   req: ExpressRequest,
   res: ExpressResponse,
   next: NextFunction

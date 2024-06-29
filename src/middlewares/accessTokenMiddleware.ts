@@ -3,7 +3,7 @@ import { tomorrow } from "../utils.js";
 import { ExpressRequest } from "../helpers.js";
 import { prisma } from "../lib.js";
 
-export async function accessTokenMiddleware(
+export default async function accessTokenMiddleware(
   req: ExpressRequest,
   _res: ExpressResponse,
   next: NextFunction

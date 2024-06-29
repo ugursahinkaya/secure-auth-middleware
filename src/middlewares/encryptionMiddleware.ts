@@ -3,7 +3,7 @@ import rawBody from "raw-body";
 import { cryptoLib } from "../lib.js";
 import { ExpressRequest } from "../helpers.js";
 
-export async function encryptionMiddleware(
+export default async function encryptionMiddleware(
   req: ExpressRequest,
   res: ExpressResponse,
   next: NextFunction
