@@ -31,14 +31,14 @@ export async function getQueryToken(
       select: {
         firstName: true,
         lastName: true,
-        username: true,
+        userName: true,
       },
     });
     if (user) {
       await prisma.queryToken.update({
         where: { token: context.req.queryToken },
         data: {
-          user: { connect: { username: user.username } },
+          user: { connect: { userName: user.userName } },
         },
       });
       const device = await getOrCreateDevice(

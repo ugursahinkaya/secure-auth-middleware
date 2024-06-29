@@ -10,7 +10,7 @@ import {
 
 export async function register(
   payload: {
-    username: string;
+    userName: string;
     firstName: string;
     lastName: string;
     password: string;
@@ -27,7 +27,7 @@ export async function register(
   const queryToken = context.req.queryToken!;
 
   const user = await prisma.user.findFirst({
-    where: { username: payload.username },
+    where: { userName: payload.userName },
   });
 
   if (user) {
@@ -48,7 +48,7 @@ export async function register(
   }
   const newUser = await prisma.user.create({
     data: {
-      username: payload.username,
+      userName: payload.userName,
       firstName: payload.firstName,
       lastName: payload.lastName,
       password: await hashPassword(payload.password),
@@ -66,9 +66,9 @@ export async function register(
     httpOnly: true,
   });
 
-  const { username, firstName, lastName } = newUser;
+  const { userName, firstName, lastName } = newUser;
   return encrypt(
-    { username, firstName, lastName, refreshToken: refreshToken.token },
+    { userName, firstName, lastName, refreshToken: refreshToken.token },
     context.payload.sender,
   );
 }

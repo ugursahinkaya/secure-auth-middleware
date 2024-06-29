@@ -3,28 +3,28 @@ import { encrypt } from "../crypto.js";
 import { RestContext, checkParams } from "../helpers.js";
 
 export async function checkUserName(
-  payload: { username: string; register?: boolean },
-  context: RestContext,
+  payload: { userName: string; register?: boolean },
+  context: RestContext
 ) {
-  console.log(`[checkPhoneNumber]`, payload);
+  console.log(`[checkUserName]`, payload);
 
   const response = checkParams(payload, context);
   if (response !== true) {
     return response;
   }
   const user = await prisma.user.findFirst({
-    where: { username: payload.username },
+    where: { userName: payload.userName },
   });
   if (!user) {
     return encrypt(
       {
         error: "Kullanıcı bulunamadı",
       },
-      context.payload.sender,
+      context.payload.sender
     );
   }
   return encrypt(
     { status: "ok", data: "password_page" },
-    context.payload.sender,
+    context.payload.sender
   );
 }

@@ -61,6 +61,6 @@ export async function getUserData(
       context.req.queryToken!,
     );
   }
-  const { firstName, lastName, username } = user;
-  return encrypt({ firstName, lastName, username }, context.req.queryToken!);
+  const { firstName, lastName, userName } = user;
+  return encrypt({ firstName, lastName, userName }, context.req.queryToken!);
 }

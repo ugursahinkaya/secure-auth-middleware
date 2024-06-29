@@ -9,7 +9,7 @@ import {
 } from "../helpers.js";
 
 export async function login(
-  payload: { username: string; password: string },
+  payload: { userName: string; password: string },
   context: RestContext,
 ) {
   console.log(`[login]`, payload);
@@ -20,7 +20,7 @@ export async function login(
   }
   const queryToken = context.req.queryToken!;
   const user = await prisma.user.findFirst({
-    where: { username: payload.username },
+    where: { userName: payload.userName },
   });
   console.log("user", user?.firstName, user?.lastName);
   if (!user) {
@@ -51,7 +51,7 @@ export async function login(
     maxAge: 1440000,
     httpOnly: true,
   });
-  const { username, firstName, lastName } = user;
+  const { userName, firstName, lastName } = user;
 
   await prisma.user.update({
     where: { id: user.id },
@@ -62,7 +62,7 @@ export async function login(
 
   return encrypt(
     {
-      username,
+      userName,
       firstName,
       lastName,
       refreshToken: refreshToken?.token,

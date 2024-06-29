@@ -14,7 +14,7 @@ import { secureFetchEndpointsMiddleware } from "./middlewares/secureFetchEndpoin
 import { Express } from "express";
 import cookieParser from "cookie-parser";
 export const operations = {
-  checkPhoneNumber: checkUserName,
+  checkUserName,
   getQueryToken,
   login,
   logout,
