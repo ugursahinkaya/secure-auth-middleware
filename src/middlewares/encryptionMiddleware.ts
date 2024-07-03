@@ -9,9 +9,10 @@ export default async function encryptionMiddleware(
   next: NextFunction
 ) {
   console.log(
-    `\n[${req.path.replace("/", "")}] ${req.method} encryptionMiddleware`,
+    `[${req.path.replace("/", "")}] ${req.method} encryptionMiddleware`,
     req.get("origin") ?? ""
   );
+
   if (
     process.env.ALLOW_ORIGIN &&
     (process.env.ALLOW_ORIGIN === "*" ||
@@ -37,9 +38,11 @@ export default async function encryptionMiddleware(
       return res.status(403).send();
     }
   } else {
-    const queryToken = req.cookies["queryToken"];
+    if (!req.queryToken) {
+      throw new Error("where is queryToken?");
+    }
     cryptoLib
-      .decryptBuffer(raw, true, queryToken)
+      .decryptBuffer(raw, true, req.queryToken)
       .then((decrypted) => {
         res.setHeader("Content-Type", "application/octet-stream");
         req.body = decrypted;

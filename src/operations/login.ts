@@ -9,7 +9,7 @@ import {
 
 export async function login(
   payload: { userName: string; password: string },
-  context: RestContext,
+  context: RestContext
 ) {
   console.log(`[login]`, payload);
 
@@ -21,13 +21,12 @@ export async function login(
   const user = await prisma.user.findFirst({
     where: { userName: payload.userName },
   });
-  console.log("user", user?.firstName, user?.lastName);
   if (!user) {
     return encrypt(
       {
         error: "Kullanıcı bulunamadı",
       },
-      queryToken,
+      queryToken
     );
   }
 
@@ -37,14 +36,14 @@ export async function login(
       {
         error: "Hatalı telefon numarası ya da şifre",
       },
-      queryToken,
+      queryToken
     );
   }
 
-  const device = await getOrCreateDevice(context.req, queryToken);
+  await getOrCreateDevice(context.req);
   const { accessToken, refreshToken } = await getOrCreateAccessTokenForLogin(
-    device.id,
-    user.id,
+    context.req.deviceId,
+    user.id
   );
   context.res.cookie("accessToken", accessToken.token, {
     maxAge: 1440000,
@@ -68,6 +67,6 @@ export async function login(
       queryToken,
       process: "loggedIn",
     },
-    queryToken,
+    queryToken
   );
 }

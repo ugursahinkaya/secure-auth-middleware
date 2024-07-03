@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
+import { ExpressRequest } from "src/helpers";
 
 interface Cookies {
   [key: string]: string;
@@ -20,11 +21,14 @@ const parseCookies = (cookieHeader: string | undefined): Cookies => {
 };
 
 const cookieParser = (
-  req: Request,
+  req: ExpressRequest,
   _res: Response,
-  next: NextFunction,
+  next: NextFunction
 ): void => {
   req.cookies = parseCookies(req.headers.cookie);
+  req.deviceId = req.cookies["deviceId"];
+  req.queryToken = req.cookies["queryToken"];
+  req.accessToken = req.cookies["accessToken"];
   next();
 };
 

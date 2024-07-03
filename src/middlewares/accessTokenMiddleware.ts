@@ -6,11 +6,11 @@ import { prisma } from "../lib.js";
 export default async function accessTokenMiddleware(
   req: ExpressRequest,
   _res: ExpressResponse,
-  next: NextFunction,
+  next: NextFunction
 ) {
   console.log(`[${req.path.replace("/", "")}] accessTokenMiddleware`);
 
-  const token = req.cookies["accessToken"];
+  const token = req.accessToken;
   if (token) {
     const accessToken = await prisma.accessToken.findFirst({
       where: { token },
@@ -21,12 +21,6 @@ export default async function accessTokenMiddleware(
       });
       if (user) {
         req.userId = user.id;
-        console.log(
-          `[${req.path.replace("/", "")}] accessTokenMiddleware`,
-          user.firstName,
-          user.lastName,
-        );
-
         await prisma.accessToken.update({
           where: { token },
           data: { expiryDate: tomorrow() },

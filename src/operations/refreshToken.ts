@@ -5,7 +5,7 @@ import { tomorrow } from "../utils.js";
 
 export async function refreshToken(
   payload: { refreshToken: string },
-  context: RestContext,
+  context: RestContext
 ) {
   console.log(`[refreshToken]`, payload);
   const queryToken = context.req.queryToken!;
@@ -15,15 +15,37 @@ export async function refreshToken(
   }
   const token = await prisma.refreshToken.findFirst({
     where: { token: payload.refreshToken },
-    include: { accessToken: true },
   });
-  if (token && token.accessTokenId) {
-    const accessToken = await prisma.accessToken.update({
+  if (!token || !token.userId) {
+    console.log(`[refreshToken] invalid refreshToken`, token);
+    return encrypt({ error: "invalid refreshToken" }, queryToken);
+  }
+  let accessToken;
+  try {
+    accessToken = await prisma.accessToken.update({
       where: { id: token.accessTokenId },
       data: { token: randomString(40), expiryDate: tomorrow() },
     });
+  } catch {
+    accessToken = await prisma.accessToken.create({
+      data: {
+        id: token.accessTokenId,
+        name: "userLogin",
+        token: randomString(40),
+        expiryDate: tomorrow(),
+        user: { connect: { id: token.userId } },
+        refreshToken: { connect: { id: token.id } },
+      },
+    });
+  }
+
+  if (accessToken.userId) {
+    await prisma.queryToken.update({
+      where: { token: queryToken },
+      data: { user: { connect: { id: accessToken.userId } } },
+    });
     context.res.cookie("accessToken", accessToken.token, {
-      maxAge: 1440000,
+      maxAge: 144e4,
       httpOnly: true,
     });
     return encrypt(
@@ -31,14 +53,11 @@ export async function refreshToken(
         refreshToken: payload.refreshToken,
         accessToken: accessToken.token,
         expiryDate: accessToken.expiryDate,
+        queryToken: context.req.queryToken,
       },
-      queryToken,
+      queryToken
     );
   }
-  return encrypt(
-    {
-      error: "invalid refreshToken",
-    },
-    queryToken,
-  );
+  console.log(`[refreshToken] invalid accessToken`, token);
+  return encrypt({ error: "invalid accessToken" }, queryToken);
 }

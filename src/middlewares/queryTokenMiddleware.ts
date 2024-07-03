@@ -1,5 +1,4 @@
 import { Response as ExpressResponse, NextFunction } from "express";
-import { senderCRC } from "../utils.js";
 import {
   ExpressRequest,
   checkCookieForQueryToken,
@@ -9,23 +8,18 @@ import {
 export default async function queryTokenMiddleware(
   req: ExpressRequest,
   res: ExpressResponse,
-  next: NextFunction,
+  next: NextFunction
 ) {
-  const sender = senderCRC(req);
-
   console.log(`[${req.path.replace("/", "")}] queryTokenMiddleware`);
 
   if (req.path === "/getQueryToken") {
-    await renewQueryToken(req, res, sender);
+    await renewQueryToken(req, res);
     return next();
   }
 
-  if (
-    req.path !== "/getQueryToken" &&
-    !(await checkCookieForQueryToken(req, sender))
-  ) {
+  if (req.path !== "/getQueryToken" && !(await checkCookieForQueryToken(req))) {
     return res.status(403).send();
   }
-  await renewQueryToken(req, res, sender);
+  await renewQueryToken(req, res);
   next();
 }

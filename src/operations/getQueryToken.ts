@@ -6,7 +6,7 @@ import {
 } from "../helpers.js";
 export async function getQueryToken(
   payload: { clientPublicKey: string },
-  context: RestContext,
+  context: RestContext
 ) {
   console.log(`[getQueryToken]`, payload);
 
@@ -16,14 +16,11 @@ export async function getQueryToken(
   await cryptoLib.generateKey(context.req.queryToken!);
   await cryptoLib.importPublicKey(
     cryptoLib.base64ToArrayBuffer(payload.clientPublicKey),
-    context.req.queryToken!,
+    context.req.queryToken!
   );
   const publicKey = cryptoLib.arrayBufferToBase64(
-    await cryptoLib.exportKey(context.req.queryToken!),
+    await cryptoLib.exportKey(context.req.queryToken!)
   );
-  cryptoLib.keyMap.delete(`${context.req.queryToken!}PBL`);
-  cryptoLib.keyMap.delete(`${context.req.queryToken!}PRV`);
-
   if (context.req.userId) {
     const user = await prisma.user.findFirst({
       where: { id: context.req.userId },
@@ -40,13 +37,10 @@ export async function getQueryToken(
           user: { connect: { userName: user.userName } },
         },
       });
-      const device = await getOrCreateDevice(
-        context.req,
-        context.req.queryToken!,
-      );
+      await getOrCreateDevice(context.req);
       const { accessToken } = await getOrCreateAccessTokenForLogin(
-        device.id,
-        context.req.userId,
+        context.req.deviceId,
+        context.req.userId
       );
       context.res.cookie("accessToken", accessToken.token, {
         maxAge: 1440000,

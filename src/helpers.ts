@@ -4,6 +4,7 @@ import { tomorrow } from "./utils.js";
 import { cryptoLib, encrypt, prisma } from "./lib.js";
 
 export type ExpressRequest = Request & {
+  deviceId: string;
   queryToken?: string;
   accessToken?: string;
   userId?: string;
@@ -21,7 +22,7 @@ export function checkParams(
     req: ExpressRequest;
     res: ExpressResponse;
     payload: { sender: string };
-  },
+  }
 ) {
   if (!context.req) {
     return false;
@@ -31,7 +32,7 @@ export function checkParams(
       {
         error: "payload not found",
       },
-      context.payload.sender,
+      context.payload.sender
     );
   }
   if (!context.req) {
@@ -39,7 +40,7 @@ export function checkParams(
       {
         error: "context not found",
       },
-      context.payload.sender,
+      context.payload.sender
     );
   }
 
@@ -49,24 +50,22 @@ export function checkParams(
       {
         error: "queryToken not found",
       },
-      context.payload.sender,
+      context.payload.sender
     );
   }
   return true;
 }
 
-export async function checkCookieForQueryToken(
-  req: ExpressRequest,
-  senderCRC: string,
-) {
+export async function checkCookieForQueryToken(req: ExpressRequest) {
   if (!req.cookies["queryToken"]) {
     return false;
   }
   const token = await prisma.queryToken.findFirst({
     where: { token: req.cookies["queryToken"] },
+    include: { device: true },
   });
 
-  if (!token || token.crc !== senderCRC) {
+  if (!token || token.device?.deviceId !== req.deviceId) {
     return false;
   }
   req.queryToken = req.cookies["queryToken"];
@@ -97,11 +96,11 @@ export async function getOrCreateLoginScope() {
 
 export async function getOrCreateAccessTokenForLogin(
   deviceId: string,
-  userId: string,
+  userId: string
 ) {
   let accessToken = await prisma.accessToken.findFirst({
     where: {
-      device: { id: deviceId },
+      device: { deviceId },
       user: { id: userId },
       name: "userLogin",
     },
@@ -134,7 +133,7 @@ export async function getOrCreateAccessTokenForLogin(
   });
 
   await prisma.device.update({
-    where: { id: deviceId },
+    where: { deviceId },
     data: {
       accessToken: { connect: { id: accessToken.id } },
       refreshToken: { connect: { id: refreshToken.id } },
@@ -144,20 +143,21 @@ export async function getOrCreateAccessTokenForLogin(
   return { accessToken, refreshToken };
 }
 
-export async function getOrCreateDevice(
-  req: ExpressRequest,
-  queryToken: string,
-) {
+export async function getOrCreateDevice(req: ExpressRequest) {
+  if (!req.queryToken) {
+    return;
+  }
   let device = await prisma.device.findFirst({
-    where: { queryToken: { some: { token: queryToken } } },
+    where: { queryToken: { some: { token: req.queryToken } } },
   });
   if (!device) {
     device = await prisma.device.create({
       data: {
-        queryToken: { connect: { token: queryToken } },
+        queryToken: { connect: { token: req.queryToken } },
         userAgent: req.headers["user-agent"],
         ip: req.ip,
         referer: req.headers.referer,
+        deviceId: req.deviceId,
       },
     });
   }
@@ -166,21 +166,25 @@ export async function getOrCreateDevice(
 }
 
 export async function moveDeviceToNewQueryToken(
-  oldQueryToken: string,
-  newQueryToken: string,
+  newToken: string,
+  deviceId: string,
+  oldToken?: string
 ) {
-  const queryToken = await prisma.queryToken.findFirst({
-    where: { token: oldQueryToken },
-    include: { device: true },
-  });
-  if (queryToken && queryToken.deviceId) {
-    await prisma.queryToken.update({
-      where: { token: newQueryToken },
-      data: {
-        device: { connect: { id: queryToken.deviceId } },
-      },
+  if (oldToken) {
+    await prisma.queryToken.delete({
+      where: { token: oldToken },
+      include: { device: true },
     });
   }
+
+  return await prisma.queryToken.create({
+    data: {
+      token: newToken,
+      device: {
+        connectOrCreate: { where: { deviceId }, create: { deviceId } },
+      },
+    },
+  });
 }
 function moveCryptoKeysToNewQueryToken(oldToken: string, newToken: string) {
   const secret = cryptoLib.keyMap.get(`${oldToken}SCR`);
@@ -192,42 +196,19 @@ function moveCryptoKeysToNewQueryToken(oldToken: string, newToken: string) {
 
 export async function renewQueryToken(
   req: ExpressRequest,
-  res: ExpressResponse,
-  senderCRC: string,
+  res: ExpressResponse
 ) {
   const newToken = randomString(40);
-  if (req.cookies["queryToken"]) {
-    moveCryptoKeysToNewQueryToken(req.cookies["queryToken"], newToken);
-  }
-  const newQueryToken = await prisma.queryToken.create({
-    data: { token: newToken, crc: "" },
-    /*
-    The CRC is set up empty here.
-    This is because the queryTokens registered to this CRC will be deleted in the next steps.
-    First, we set it up as empty, then we perform the operations.
-    After that, we update the CRC for the query token.
-    */
-  });
-  if (req.cookies["queryToken"]) {
-    await moveDeviceToNewQueryToken(req.cookies["queryToken"], newToken);
-    await prisma.queryToken.deleteMany({
-      where: { token: req.cookies["queryToken"] },
-    });
+
+  if (req.queryToken) {
+    moveCryptoKeysToNewQueryToken(req.queryToken, newToken);
   }
 
-  const crcBased = await prisma.queryToken.findFirst({
-    where: { crc: senderCRC },
-  });
-
-  if (crcBased) {
-    await moveDeviceToNewQueryToken(crcBased.token, newToken);
-    await prisma.queryToken.deleteMany({ where: { crc: senderCRC } });
-  }
-
-  await prisma.queryToken.update({
-    where: { token: newToken },
-    data: { crc: senderCRC },
-  });
+  const newQueryToken = await moveDeviceToNewQueryToken(
+    newToken,
+    req.deviceId,
+    req.queryToken
+  );
 
   req.queryToken = newQueryToken.token;
   res.cookie("queryToken", newQueryToken.token, {
