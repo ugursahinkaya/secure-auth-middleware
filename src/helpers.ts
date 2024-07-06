@@ -7,7 +7,10 @@ export type ExpressRequest = Request & {
   deviceId: string;
   queryToken?: string;
   accessToken?: string;
+  bearerToken?: string;
   userId?: string;
+  encrypted: boolean;
+  middlewareIndex: number;
 };
 
 export type RestContext = {
@@ -171,9 +174,8 @@ export async function moveDeviceToNewQueryToken(
   oldToken?: string
 ) {
   if (oldToken) {
-    await prisma.queryToken.delete({
+    await prisma.queryToken.deleteMany({
       where: { token: oldToken },
-      include: { device: true },
     });
   }
 
@@ -196,7 +198,7 @@ function moveCryptoKeysToNewQueryToken(oldToken: string, newToken: string) {
 
 export async function renewQueryToken(
   req: ExpressRequest,
-  res: ExpressResponse
+  _res: ExpressResponse
 ) {
   const newToken = randomString(40);
 
@@ -209,10 +211,5 @@ export async function renewQueryToken(
     req.deviceId,
     req.queryToken
   );
-
   req.queryToken = newQueryToken.token;
-  res.cookie("queryToken", newQueryToken.token, {
-    maxAge: 180000,
-    httpOnly: true,
-  });
 }

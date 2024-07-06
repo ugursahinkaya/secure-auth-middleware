@@ -4,7 +4,7 @@ import { operations } from "../lib.js";
 export default async function secureFetchEndpointsMiddleware(
   req: ExpressRequest,
   res: ExpressResponse,
-  next: NextFunction,
+  next: NextFunction
 ) {
   console.log(`[${req.path.replace("/", "")}] secureFetchEndpointsMiddleware`);
 

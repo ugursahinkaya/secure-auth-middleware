@@ -26,6 +26,7 @@ const cookieParser = (
   next: NextFunction
 ): void => {
   req.cookies = parseCookies(req.headers.cookie);
+  console.log(`[${req.path.replace("/", "")}] cookieParser`, req.cookies);
   req.deviceId = req.cookies["deviceId"];
   req.queryToken = req.cookies["queryToken"];
   req.accessToken = req.cookies["accessToken"];

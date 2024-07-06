@@ -5,7 +5,7 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
-  "license": "GPL-3.0-only",
+  "license": "GPL-3.0 or Commerical",
   "description": "",
   "author": "Uğur Şahinkaya <ugur@sahinkaya.xyz>",
   "contributors": [
@@ -55,6 +55,7 @@
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/ws": "^8.5.10",
     "prettier": "^3.3.2",
     "prisma": "5.16.1",
@@ -64,10 +65,13 @@
   "dependencies": {
     "@prisma/client": "5.16.1",
     "@ugursahinkaya/crypto-lib": "0.1.0",
+    "@ugursahinkaya/logger": "0.1.2",
+    "@ugursahinkaya/shared-types": "0.1.0",
     "@ugursahinkaya/utils": "0.1.0",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
     "dotenv-expand": "^11.0.6",
+    "jsonwebtoken": "^9.0.2",
     "raw-body": "^2.5.2",
     "terser": "^5.31.1"
   }

@@ -1,4 +1,4 @@
-import { prisma, cryptoLib } from "../lib.js";
+import { prisma, cryptoLib, logger } from "../lib.js";
 import {
   RestContext,
   getOrCreateAccessTokenForLogin,
@@ -8,7 +8,10 @@ export async function getQueryToken(
   payload: { clientPublicKey: string },
   context: RestContext
 ) {
-  console.log(`[getQueryToken]`, payload);
+  logger.debug(
+    { queryToken: context.req.queryToken, payload },
+    "getQueryToken"
+  );
 
   if (!payload.clientPublicKey) {
     return { error: "" };
@@ -46,6 +49,10 @@ export async function getQueryToken(
         maxAge: 1440000,
         httpOnly: true,
       });
+      context.res.cookie("queryToken", context.req.queryToken, {
+        maxAge: 180000,
+        httpOnly: true,
+      });
       return {
         serverPublicKey: publicKey,
         queryToken: context.req.queryToken,
@@ -53,7 +60,10 @@ export async function getQueryToken(
       };
     }
   }
-
+  context.res.cookie("queryToken", context.req.queryToken, {
+    maxAge: 180000,
+    httpOnly: true,
+  });
   const result = {
     serverPublicKey: publicKey,
     process: "loginOrRegister",
